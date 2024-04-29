@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/celtic01/hotel-app/internal/config"
 	"github.com/celtic01/hotel-app/internal/handlers"
+	"github.com/celtic01/hotel-app/internal/models"
 	"github.com/celtic01/hotel-app/internal/render"
 )
 
@@ -19,6 +21,8 @@ const portNumber = ":8080"
 var session *scs.SessionManager
 
 func main() {
+
+	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	app.InProduction = false
