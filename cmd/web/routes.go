@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/celtic01/hotel-app/pkg/config"
-	"github.com/celtic01/hotel-app/pkg/handlers"
+	"github.com/celtic01/hotel-app/internal/config"
+	"github.com/celtic01/hotel-app/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )

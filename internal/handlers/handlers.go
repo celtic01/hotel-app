@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/celtic01/hotel-app/pkg/config"
-	"github.com/celtic01/hotel-app/pkg/models"
-	"github.com/celtic01/hotel-app/pkg/render"
+	"github.com/celtic01/hotel-app/internal/config"
+	"github.com/celtic01/hotel-app/internal/models"
+	"github.com/celtic01/hotel-app/internal/render"
 )
 
 // REPOSITORY PATTERN

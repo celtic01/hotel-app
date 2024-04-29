@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/celtic01/hotel-app/pkg/config"
-	"github.com/celtic01/hotel-app/pkg/handlers"
-	"github.com/celtic01/hotel-app/pkg/render"
+	"github.com/celtic01/hotel-app/internal/config"
+	"github.com/celtic01/hotel-app/internal/handlers"
+	"github.com/celtic01/hotel-app/internal/render"
 )
 
 var app config.AppConfig
