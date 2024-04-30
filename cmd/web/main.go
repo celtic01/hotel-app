@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/celtic01/hotel-app/internal/config"
 	"github.com/celtic01/hotel-app/internal/handlers"
+	"github.com/celtic01/hotel-app/internal/helpers"
 	"github.com/celtic01/hotel-app/internal/models"
 	"github.com/celtic01/hotel-app/internal/render"
 )
@@ -44,6 +46,11 @@ func run() error {
 	// change this to true when in production
 	app.InProduction = false
 
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.InfoLog = infoLog
+	app.ErrorLog = errorLog
+
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -65,6 +72,7 @@ func run() error {
 
 	handlers.NewHandlers(repo)
 	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	return nil
 }
