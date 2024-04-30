@@ -4,7 +4,7 @@ BUILD_DIR := ./cmd/web
 POSTGRES_HOST := 127.0.0.1
 POSTGRES_PORT := 5432
 POSTGRES_USER := hotel_user
-POSTGRES_DB := hotel_db
+POSTGRES_DB := hotel-reservation_development
 
 # Commands
 build-and-run: build run
