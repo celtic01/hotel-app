@@ -27,9 +27,11 @@ start-db:
 
 stop-db:
 	@echo "Stopping PostgreSQL container..."
-	@docker-compose stop db
+	@docker-compose down -v db
+
+restart-db: stop-db start-db
 
 connect-db:
 	@psql -h $(POSTGRES_HOST) -p $(POSTGRES_PORT) -U $(POSTGRES_USER) -d $(POSTGRES_DB)
 
-.PHONY: build run clean build-and-run stop-db start-db
+.PHONY: build run clean build-and-run stop-db start-db restart-db connect-db

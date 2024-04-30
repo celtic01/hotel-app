@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: hotel_user
       POSTGRES_PASSWORD: hotel_pass
-      POSTGRES_DB: hotel_db
+      POSTGRES_DB: bookings
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
