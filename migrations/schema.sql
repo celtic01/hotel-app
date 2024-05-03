@@ -32,7 +32,6 @@ CREATE TABLE public.reservations (
     phone character varying(255) DEFAULT ''::character varying NOT NULL,
     start_date character varying(255) NOT NULL,
     end_date character varying(255) NOT NULL,
-    password character varying(255) NOT NULL,
     room_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -105,7 +104,6 @@ ALTER SEQUENCE public.restrictions_id_seq OWNED BY public.restrictions.id;
 
 CREATE TABLE public.room_restrictions (
     id integer NOT NULL,
-    restriction_name character varying(255) DEFAULT ''::character varying NOT NULL,
     start_date character varying(255) NOT NULL,
     end_date character varying(255) NOT NULL,
     room_id integer NOT NULL,
