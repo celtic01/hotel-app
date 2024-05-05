@@ -11,6 +11,5 @@ services:
       POSTGRES_DB: hotel-reservation_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
 volumes:
   postgres_data:
