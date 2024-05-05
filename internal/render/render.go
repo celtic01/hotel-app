@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	"github.com/celtic01/hotel-app/internal/config"
 	"github.com/celtic01/hotel-app/internal/models"
@@ -16,11 +17,17 @@ import (
 
 var app *config.AppConfig
 var pathToTemplates = "./templates"
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"humanDate": HumanDate,
+}
 
 // NewTemplates sets the config for the template package
 func NewRenderer(a *config.AppConfig) {
 	app = a
+}
+
+func HumanDate(t time.Time) string {
+	return t.Format("02-01-2006")
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
