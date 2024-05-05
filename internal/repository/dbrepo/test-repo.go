@@ -103,3 +103,25 @@ func (m *testDBRepo) GetRoomByID(id int) (models.Room, error) {
 	}
 	return room, nil
 }
+
+// GetUserByID gets a user by id
+func (m *testDBRepo) GetUserByID(id int) (models.User, error) {
+	var u models.User
+	if id > 1000 {
+		return u, errors.New("some error")
+	}
+	return u, nil
+}
+
+// UpdateUser updates a user in the database
+func (m *testDBRepo) UpdateUser(u models.User) error {
+	if u.ID > 1000 {
+		return errors.New("some error")
+	}
+	return nil
+}
+
+// Authenticate authenticates a user
+func (m *testDBRepo) Authenticate(email, testPassword string) (int, string, error) {
+	return 0, "", nil
+}
