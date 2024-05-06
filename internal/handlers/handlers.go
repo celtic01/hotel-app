@@ -11,10 +11,12 @@ import (
 	"github.com/celtic01/hotel-app/internal/config"
 	"github.com/celtic01/hotel-app/internal/driver"
 	"github.com/celtic01/hotel-app/internal/forms"
+	"github.com/celtic01/hotel-app/internal/helpers"
 	"github.com/celtic01/hotel-app/internal/models"
 	"github.com/celtic01/hotel-app/internal/render"
 	"github.com/celtic01/hotel-app/internal/repository"
 	"github.com/celtic01/hotel-app/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 )
 
 // Repo the repository used by the handlers
@@ -540,6 +542,103 @@ func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request
 	})
 }
 
+func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request) {
+	exploded := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "missing url parameter")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	src := exploded[3]
+	reservation, err := m.DB.GetReservationByID(id)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from database")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	sd := reservation.StartDate.Format("2006-01-02")
+
+	ed := reservation.EndDate.Format("2006-01-02")
+
+	stringMap := make(map[string]string)
+
+	stringMap["src"] = src
+
+	stringMap["start_date"] = sd
+
+	stringMap["end_date"] = ed
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{
+		Data:      data,
+		StringMap: stringMap,
+		Form:      forms.New(nil),
+	})
+
+}
+
+func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't parse form")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	exploded := strings.Split(r.RequestURI, "/")
+	src := exploded[3]
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "missing url parameter")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	reservation, err := m.DB.GetReservationByID(id)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from database")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	// update the reservation
+
+	reservation.FirstName = r.Form.Get("first_name")
+	reservation.LastName = r.Form.Get("last_name")
+	reservation.Email = r.Form.Get("email")
+	reservation.Phone = r.Form.Get("phone")
+
+	err = m.DB.UpdateReservation(reservation)
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	m.App.Session.Put(r.Context(), "flash", "Changes saved")
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+
+}
+
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	src := chi.URLParam(r, "src")
+
+	err := m.DB.UpdateProcessedForReservation(id, 1)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Can't update reservation in database")
+		http.Redirect(w, r, "/admin/reservations-new", http.StatusSeeOther)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Reservation marked as processed")
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }

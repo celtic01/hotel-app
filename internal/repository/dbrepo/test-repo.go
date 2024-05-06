@@ -1,6 +1,7 @@
 package dbrepo
 
 import (
+	"context"
 	"errors"
 	"log"
 	"time"
@@ -135,4 +136,34 @@ func (m *testDBRepo) AllNewReservations() ([]models.Reservation, error) {
 	var reservations []models.Reservation
 
 	return reservations, nil
+}
+
+func (m *testDBRepo) GetReservationByID(id int) (models.Reservation, error) {
+	var reservation models.Reservation
+
+	return reservation, nil
+}
+
+func (m *testDBRepo) UpdateReservation(u models.Reservation) error {
+
+	return nil
+}
+
+func (m *testDBRepo) DeleteReservation(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `delete from reservations where id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *testDBRepo) UpdateProcessedForReservation(id, processed int) error {
+
+	return nil
 }
