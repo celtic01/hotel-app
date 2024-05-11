@@ -55,8 +55,15 @@ func run() (*driver.DB, error) {
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
-
-	// change this to true when in production
+	/* flags/envs
+	    inProduction
+		useCache
+		dbName
+		dbUser
+		dbPass
+		dbHost
+		dbPort
+	*/
 	app.InProduction = false
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
