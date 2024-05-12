@@ -1,0 +1,1 @@
+delete from restrictions where restriction_name = 'Blocked';
