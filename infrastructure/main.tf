@@ -26,7 +26,7 @@ module "vpc" {
 module "ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
-  repository_name = "private-example"
+  repository_name = "hotel-app"
 
   repository_lifecycle_policy = jsonencode({
     rules = [
