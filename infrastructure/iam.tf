@@ -30,7 +30,8 @@ module "iam_policy" {
          "Sid":"RegisterTaskDefinition",
          "Effect":"Allow",
          "Action":[
-            "ecs:RegisterTaskDefinition"
+            "ecs:RegisterTaskDefinition",
+            "ecs:DescribeTaskDefinition"
          ],
          "Resource":"*"
     },
