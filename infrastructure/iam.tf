@@ -62,7 +62,7 @@ EOF
 
 module "iam_github_oidc_role" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-github-oidc-role"
-
+ name= "github-oidc-role"
   subjects = ["celtic01/hotel-app:*"]
 
   policies = {
