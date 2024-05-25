@@ -1,7 +1,5 @@
-# This is a basic workflow to help you get started with Actions
-name: Connect to an AWS role from a GitHub repository
+name: build & deploy 
 
-# Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on:
   push:
     branches: [ main ]
@@ -12,7 +10,6 @@ env:
   
   AWS_REGION : us-west-2 #Change to reflect your Region
 
-# Permission can be added at job level or workflow level    
 permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
@@ -29,13 +26,13 @@ jobs:
           role-to-assume: arn:aws:iam::151389984452:role/terraform-20240519123749306900000001 #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      # Hello from AWS: WhoAmI
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push docker image to Amazon ECR
+        id: build-image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: hotel-app
@@ -43,4 +40,24 @@ jobs:
         run: |
           docker build -t $REGISTRY/$REPOSITORY:v$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
+          echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: hotel-alb
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: hotel-alb
+          cluster: main-cluster
+          wait-for-service-stability: true
