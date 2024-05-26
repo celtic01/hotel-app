@@ -61,7 +61,7 @@ module "ecs_service" {
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
-      image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:v8b1194327aae7963303ba1544cd8f8e4dd37f06e"
+      image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:latest"
       port_mappings = [
         {
           name          = local.container_name
@@ -69,7 +69,26 @@ module "ecs_service" {
           protocol      = "tcp"
         }
       ]
-
+      secrets = [
+        {
+          name = "DB_PASSWORD"
+          valueFrom = "${module.db.db_instance_master_user_secret_arn}"
+        } 
+      ]
+      environment = [
+        {
+          name  = "DB_HOST"
+          value = module.db.db_instance_address
+        },
+        {
+          name  = "DB_NAME"
+          value = module.db.db_instance_name
+        },
+        {
+          name  = "DB_USER"
+          value = module.db.db_instance_username
+        }
+      ]
       mount_points = [
         {
           sourceVolume  = "my-vol",

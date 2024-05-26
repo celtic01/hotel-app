@@ -18,13 +18,13 @@ import (
 )
 
 var app config.AppConfig
-
-const portNumber = ":8080"
+var env config.Env
 
 var session *scs.SessionManager
 
 func main() {
 
+	env.GetEnvFile()
 	db, err := run()
 	if err != nil {
 		log.Fatal(err)
@@ -35,10 +35,10 @@ func main() {
 	fmt.Println("Starting mail listener")
 	listenForMail()
 
-	fmt.Printf("Starting application on port %s", portNumber)
+	fmt.Printf("Starting application on port %s", env.Port)
 
 	srv := &http.Server{
-		Addr:    portNumber,
+		Addr:    env.Port,
 		Handler: routes(&app),
 	}
 
@@ -55,16 +55,7 @@ func run() (*driver.DB, error) {
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
-	/* flags/envs
-	    inProduction
-		useCache
-		dbName
-		dbUser
-		dbPass
-		dbHost
-		dbPort
-	*/
-	app.InProduction = false
+	app.InProduction = env.InProd
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -81,7 +72,9 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=postgresql-hotel.cdfrsad3v3po.us-west-2.rds.amazonaws.com port=5432 dbname=hotelreservationproduction user=hotelapp password=%3E%21TxIEdo~_%29tw%24XhI%3FzB_tC3ow3S sslmode=disable")
+	fmt.Println(env.DBHost, env.DBName, env.DBUser, env.DBPass)
+	db, err := driver.ConnectSQL(fmt.Sprintf("host=%s port=5432 dbname=%s user=%s password=%s sslmode=disable", env.DBHost, env.DBName, env.DBUser, env.DBPass))
+
 	if err != nil {
 		log.Fatal("cannot connect to database! Dying...")
 	}
