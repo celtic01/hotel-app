@@ -9,5 +9,6 @@ locals {
   container_name = "ecs-sample"
   container_port = 8080 
   name= "hotel-alb"
+  domain_name="bortas.ro"
 }
 

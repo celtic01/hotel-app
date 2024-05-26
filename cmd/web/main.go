@@ -72,7 +72,6 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	fmt.Println(env.DBHost, env.DBName, env.DBUser, env.DBPass)
 	db, err := driver.ConnectSQL(fmt.Sprintf("host=%s port=5432 dbname=%s user=%s password=%s sslmode=disable", env.DBHost, env.DBName, env.DBUser, env.DBPass))
 
 	if err != nil {

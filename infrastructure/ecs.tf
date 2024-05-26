@@ -42,7 +42,7 @@ module "ecs_service" {
   # Service
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
-
+  force_delete = true
   # Task Definition
   requires_compatibilities = ["EC2"]
   capacity_provider_strategy = {
@@ -50,7 +50,7 @@ module "ecs_service" {
     group_1 = {
       capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["group_1"].name
       weight            = 1
-      base              = 1
+      base              = 0
     }
   }
 
@@ -89,14 +89,6 @@ module "ecs_service" {
           value = module.db.db_instance_name
         }
       ]
-      mount_points = [
-        {
-          sourceVolume  = "my-vol",
-          containerPath = "/var/www/my-vol"
-        }
-      ]
-
-      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
       # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
@@ -122,7 +114,7 @@ module "ecs_service" {
 
   subnet_ids = module.vpc.private_subnets
   security_group_rules = {
-    alb_http_ingress = {
+    svc_http_ingress = {
       type                     = "ingress"
       from_port                = local.container_port
       to_port                  = local.container_port
@@ -130,7 +122,7 @@ module "ecs_service" {
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id
     },
-   alb_http_egress = {
+   svc_http_egress = {
     type        = "egress"
     from_port   = 0
     to_port     = 0
@@ -174,6 +166,13 @@ module "alb" {
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
+    all_https = {
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      description = "HTTPS web traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
   }
   security_group_egress_rules = {
     all = {
@@ -183,16 +182,25 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http-https-redirect = {
       port     = 80
       protocol = "HTTP"
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+    ex-https = {
+      port            = 443
+      protocol        = "HTTPS"
+      certificate_arn = module.acm.acm_certificate_arn
 
       forward = {
         target_group_key = "ex_ecs"
       }
-    }
   }
-
+  }
   target_groups = {
     ex_ecs = {
       backend_protocol                  = "HTTP"
@@ -218,6 +226,7 @@ module "alb" {
       create_attachment = false
     }
   }
+
 
 }
 
@@ -298,4 +307,55 @@ module "autoscaling_sg" {
 
   tags = local.tags
 }
+
+module "acm" {
+ source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.1"
+
+  providers = {
+    aws.acm = aws,
+    aws.dns = aws
+  }
+
+  domain_name = local.domain_name
+  zone_id     = data.cloudflare_zone.this.id
+
+  subject_alternative_names = [
+    "*.${local.domain_name}"
+  ]
+
+  create_route53_records  = false
+  validation_method       = "DNS"
+  validation_record_fqdns = cloudflare_record.validation[*].hostname
+
+  tags = {
+    Name = local.domain_name
+  }
+}
+
+resource "cloudflare_record" "validation" {
+  count = length(module.acm.distinct_domain_names)
+
+  zone_id = data.cloudflare_zone.this.id
+  name    = element(module.acm.validation_domains, count.index)["resource_record_name"]
+  type    = element(module.acm.validation_domains, count.index)["resource_record_type"]
+  value   = trimsuffix(element(module.acm.validation_domains, count.index)["resource_record_value"], ".")
+  ttl     = 60
+  proxied = false
+
+  allow_overwrite = true
+}
+
+data "cloudflare_zone" "this" {
+  name = local.domain_name
+}
+
+resource "cloudflare_record" "example" {
+  zone_id = data.cloudflare_zone.this.id
+  name    = "hotel-app.${local.domain_name}"
+  value   = "${module.alb.dns_name}"
+  type    = "CNAME"
+  ttl     = 3600
+}
+
 
