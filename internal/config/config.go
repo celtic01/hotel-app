@@ -70,7 +70,7 @@ func (e *Env) GetEnv() {
 	e.DBName = os.Getenv("DB_NAME")
 
 	if e.Port == "" {
-		e.Port = "8080"
+		e.Port = ":8080"
 	}
 	if e.DBHost == "" {
 		panic("DB_HOST is not set")

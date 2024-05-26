@@ -87,10 +87,6 @@ module "ecs_service" {
         {
           name  = "DB_NAME"
           value = module.db.db_instance_name
-        },
-        {
-          name  = "DB_USER"
-          value = module.db.db_instance_username
         }
       ]
       mount_points = [
@@ -133,7 +129,15 @@ module "ecs_service" {
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id
-    }
+    },
+   alb_http_egress = {
+    type        = "egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    description = "Outbound traffic for service port"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   }
 
   tags = local.tags

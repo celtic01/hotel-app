@@ -2,7 +2,7 @@ module "ecr" {
   source = "terraform-aws-modules/ecr/aws"
 
   repository_name = "hotel-app"
-
+  repository_image_tag_mutability = "MUTABLE"
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
