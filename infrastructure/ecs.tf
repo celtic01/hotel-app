@@ -61,7 +61,7 @@ module "ecs_service" {
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
-      image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
+      image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:v8b1194327aae7963303ba1544cd8f8e4dd37f06e"
       port_mappings = [
         {
           name          = local.container_name

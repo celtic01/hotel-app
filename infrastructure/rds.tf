@@ -16,8 +16,8 @@ module "db" {
   # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
   # "Error creating DB Instance: InvalidParameterValue: MasterUsername
   # user cannot be used as it is a reserved word used by the engine"
-  db_name  = "completePostgresql"
-  username = "complete_postgresql"
+  db_name  = "hotelreservationproduction"
+  username = "hotelapp"
   port     = 5432
 
   # Setting manage_master_user_password_rotation to false after it

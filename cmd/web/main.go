@@ -81,7 +81,7 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=my_postgres_container port=5432 dbname=hotel-reservation_development user=hotel_user password=hotel_pass sslmode=disable")
+	db, err := driver.ConnectSQL("host=postgresql-hotel.cdfrsad3v3po.us-west-2.rds.amazonaws.com port=5432 dbname=hotelreservationproduction user=hotelapp password=>!TxIEdo~_)tw$XhI?zB_tC3ow3S sslmode=disable")
 	if err != nil {
 		log.Fatal("cannot connect to database! Dying...")
 	}

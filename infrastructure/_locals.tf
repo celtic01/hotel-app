@@ -7,7 +7,7 @@ locals {
   }
   region = "us-west-2"
   container_name = "ecs-sample"
-  container_port = 80
+  container_port = 8080 
   name= "hotel-alb"
 }
 
