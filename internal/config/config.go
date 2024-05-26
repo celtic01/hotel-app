@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -42,8 +43,24 @@ func (e *Env) GetEnvFile() {
 			log.Fatal("Error loading .env file")
 		}
 		e.GetEnv()
+		e.DBPass = os.Getenv("DB_PASS")
+		e.DBUser = os.Getenv("DB_USER")
 	} else if e.InProd {
+		// {"username":"hotelapp","password":"k8L1H:<|QhZIsdypAoFCz61RYeQM"}
+		credentialsJSON := os.Getenv("DB_CREDS")
+		var credentials map[string]string
+
+		err := json.Unmarshal([]byte(credentialsJSON), &credentials)
+
+		if err != nil {
+			log.Fatalf("Error parsing JSON: %v", err)
+		}
+
+		e.DBUser = credentials["username"]
+		e.DBPass = credentials["password"]
+
 		e.GetEnv()
+
 	}
 }
 
@@ -51,8 +68,6 @@ func (e *Env) GetEnv() {
 	e.Port = os.Getenv("PORT")
 	e.UseCache, _ = strconv.ParseBool(os.Getenv("USE_CACHE"))
 	e.DBHost = os.Getenv("DB_HOST")
-	e.DBUser = os.Getenv("DB_USER")
-	e.DBPass = os.Getenv("DB_PASS")
 	e.DBName = os.Getenv("DB_NAME")
 
 	if e.Port == "" {

@@ -71,11 +71,15 @@ module "ecs_service" {
       ]
       secrets = [
         {
-          name = "DB_PASSWORD"
+          name = "DB_CREDS"
           valueFrom = "${module.db.db_instance_master_user_secret_arn}"
         } 
       ]
       environment = [
+         {
+          name  = "IN_PROD"
+          value = "true"
+        },
         {
           name  = "DB_HOST"
           value = module.db.db_instance_address
