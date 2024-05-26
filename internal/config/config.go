@@ -46,7 +46,6 @@ func (e *Env) GetEnvFile() {
 		e.DBPass = os.Getenv("DB_PASS")
 		e.DBUser = os.Getenv("DB_USER")
 	} else if e.InProd {
-		// {"username":"hotelapp","password":"k8L1H:<|QhZIsdypAoFCz61RYeQM"}
 		credentialsJSON := os.Getenv("DB_CREDS")
 		var credentials map[string]string
 
@@ -75,12 +74,6 @@ func (e *Env) GetEnv() {
 	}
 	if e.DBHost == "" {
 		panic("DB_HOST is not set")
-	}
-	if e.DBUser == "" {
-		panic("DB_USER is not set")
-	}
-	if e.DBPass == "" {
-		panic("DB_PASS is not set")
 	}
 	if e.DBName == "" {
 		panic("DB_NAME is not set")
