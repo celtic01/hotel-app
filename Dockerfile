@@ -22,10 +22,12 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/ .
+COPY --from=builder /app/app .
+COPY --from=builder /app/templates ./templates
+COPY --from=builder /app/static  ./static
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
-# Command to run the executable
-CMD ["./app"]
+ENTRYPOINT [ "./app" ]
+

@@ -201,14 +201,14 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Generals renders the room page
-func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "generals.page.tmpl", &models.TemplateData{})
+// Carpathian renders the room page
+func (m *Repository) Carpathian(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "carpathian.page.tmpl", &models.TemplateData{})
 }
 
-// Majors renders the room page
-func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "majors.page.tmpl", &models.TemplateData{})
+// Crisana renders the room page
+func (m *Repository) Crisana(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "crisana.page.tmpl", &models.TemplateData{})
 }
 
 // Availability renders the search availability page
@@ -633,11 +633,11 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 	data := make(map[string]interface{})
 	data["now"] = now
-
+	fmt.Println(now)
 	next := now.AddDate(0, 1, 0)
 	last := now.AddDate(0, -1, 0)
-
-	nextMonth := next.Format("01")
+	fmt.Println(next)
+	nextMonth := addMonth(now).Format("01")
 	nextMonthYear := next.Format("2006")
 
 	lastMonth := last.Format("01")
@@ -672,7 +672,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		reservationMap := make(map[string]int)
 		blockMap := make(map[string]int)
 
-		for d := firstOfMonth; d.After(lastOfMonth) == false; d = d.AddDate(0, 0, 1) {
+		for d := firstOfMonth; !d.After(lastOfMonth); d = d.AddDate(0, 0, 1) {
 			reservationMap[d.Format("2006-01-2")] = 0
 			blockMap[d.Format("2006-01-2")] = 0
 		}
@@ -686,7 +686,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 		for _, y := range restrictions {
 			if y.ReservationID > 0 {
-				for d := y.StartDate; d.After(y.EndDate) == false; d = d.AddDate(0, 0, 1) {
+				for d := y.StartDate; !d.After(y.EndDate); d = d.AddDate(0, 0, 1) {
 					reservationMap[d.Format("2006-01-2")] = y.ReservationID
 				}
 			} else {
@@ -804,4 +804,14 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 	}
 	m.App.Session.Put(r.Context(), "flash", "Changes saved")
 	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%d&m=%d", year, month), http.StatusSeeOther)
+}
+
+func addMonth(t time.Time) time.Time {
+	next := t.AddDate(0, 1, 0)
+
+	if next.Day() != t.Day() {
+		next = next.AddDate(0, 0, -next.Day())
+	}
+
+	return next
 }

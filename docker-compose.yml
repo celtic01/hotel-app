@@ -8,7 +8,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       IN_PROD: 1
       PORT: ":8080"
@@ -16,6 +17,8 @@ services:
       DB_HOST: db  # Use the service name "db" to connect to the PostgreSQL container
       DB_CREDS: "{\"username\": \"hotel_user\", \"password\": \"hotel_pass\"}"
       DB_NAME: hotel-reservation_development
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
 
   db:
     image: postgres:latest
@@ -27,6 +30,10 @@ services:
       POSTGRES_DB: hotel-reservation_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel_user -d hotel-reservation_development"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 volumes:
   postgres_data:
