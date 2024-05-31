@@ -1,6 +1,22 @@
 version: '3'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      IN_PROD: 1
+      PORT: ":8080"
+      USE_CACHE: 0
+      DB_HOST: db  # Use the service name "db" to connect to the PostgreSQL container
+      DB_CREDS: "{\"username\": \"hotel_user\", \"password\": \"hotel_pass\"}"
+      DB_NAME: hotel-reservation_development
+
   db:
     image: postgres:latest
     ports:
@@ -11,5 +27,6 @@ services:
       POSTGRES_DB: hotel-reservation_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
 volumes:
   postgres_data:
