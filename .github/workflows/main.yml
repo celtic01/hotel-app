@@ -65,8 +65,8 @@ jobs:
           wait-for-service-stability: true
       
        - name: Get EC2 instance ID
-        id: get-instance-id
-        run: |
+         id: get-instance-id
+         run: |
           INSTANCE_ID=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=jumpbox" \
               --query "Reservations[*].Instances[*].InstanceId" \
@@ -74,6 +74,6 @@ jobs:
           echo "INSTANCE_ID=$INSTANCE_ID"
           echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
 
-      - name: Print instance ID
-        run: |
+       - name: Print instance ID
+         run: |
           echo "The EC2 instance ID is: ${{ steps.get-instance-id.outputs.instance_id }}"
