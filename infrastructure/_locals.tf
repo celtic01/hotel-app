@@ -6,7 +6,7 @@ locals {
     Repository = "https://github.com/terraform-aws-modules/terraform-aws-ecs"
   }
   region = "us-west-2"
-  container_name = "ecs-sample"
+  container_name = "hotel-app"
   container_port = 8080 
   name= "hotel-alb"
   domain_name="bortas.ro"

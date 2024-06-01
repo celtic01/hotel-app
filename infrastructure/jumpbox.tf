@@ -1,7 +1,7 @@
 module "ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "5.6.1"
-  name = local.name
+  name = "jumpbox" 
 
   instance_type          = "t2.micro"
 
