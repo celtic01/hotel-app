@@ -3,7 +3,7 @@ name: build & deploy
 on:
   pull_request:
     branches: [ main ]
-    
+      - '!/infrastructure/**'
 jobs:
   Build-and-Deploy:
     runs-on: ubuntu-latest
