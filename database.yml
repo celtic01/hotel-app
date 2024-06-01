@@ -1,0 +1,11 @@
+---
+default:
+  dialect: postgres
+  database: {{env0r "DATABASE_NAME" "hotel-reservation_development"}}
+  user: {{env0r "DATABASE_USER" "hotel_user"}} 
+  password: {{env0r "DATABASE_PASS" "hotel_pass"}}
+  host: 127.0.0.1
+  pool: 5
+  port: 5555
+
+  
