@@ -14,7 +14,7 @@ module "ecs_cluster" {
     # On-demand instances
     group_1 = {
       auto_scaling_group_arn         = module.autoscaling["group_1"].autoscaling_group_arn
-      managed_termination_protection = "ENABLED"
+      managed_termination_protection = "DISABLED"
 
       managed_scaling = {
         maximum_scaling_step_size = 1 
@@ -49,8 +49,8 @@ module "ecs_service" {
     # On-demand instances
     group_1 = {
       capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["group_1"].name
-      weight            = 1
-      base              = 0
+      weight            = 2 
+      base              = 1
     }
   }
 
@@ -237,7 +237,7 @@ module "autoscaling" {
   for_each = {
     # On-demand instances
     group_1 = {
-      instance_type              = "t3.medium"
+      instance_type              = "t3.large"
       use_mixed_instances_policy = false
       mixed_instances_policy     = {}
       user_data                  = <<-EOT
@@ -282,7 +282,7 @@ module "autoscaling" {
   }
 
   # Required for  managed_termination_protection = "ENABLED"
-  protect_from_scale_in = true
+  protect_from_scale_in = false 
 
   tags = local.tags
 }
