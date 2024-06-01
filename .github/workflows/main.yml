@@ -62,7 +62,17 @@ jobs:
           service: hotel-alb
           cluster: main-cluster
           wait-for-service-stability: true
-      
+
+      - name: Get RDS instance hostname
+        id: get-rds-hostname
+        run: |
+          RDS_HOSTNAME=$(aws rds describe-db-instances \
+              --db-instance-identifier postgresql-hotel \
+              --query "DBInstances[0].Endpoint.Address" \
+              --output text)
+          echo "RDS_HOSTNAME=$RDS_HOSTNAME"
+          echo "rds_hostname=$RDS_HOSTNAME" >> $GITHUB_OUTPUT
+ 
       - name: Get EC2 instance ID
         id: get-instance-id
         run: |
@@ -75,4 +85,5 @@ jobs:
 
       - name: Print instance ID
         run: |
-          echo "The EC2 instance ID is: ${{ steps.get-instance-id.outputs.instance_id }}"
+
+          aws ssm start-session --target ${{ steps.get-instance-id.outputs.instance_id }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["${{ steps.get-rds-hostname.outputs.rds_hostname}}"],"portNumber":["5432"],"localPortNumber":["5555"]}'
