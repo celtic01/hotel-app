@@ -25,43 +25,43 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push docker image to Amazon ECR
-        id: build-image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: hotel-app
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:v$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
-          docker tag $REGISTRY/$REPOSITORY:v$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
-          docker push $REGISTRY/$REPOSITORY:latest
+      # - name: Build, tag, and push docker image to Amazon ECR
+      #   id: build-image
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: hotel-app
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |
+      #     docker build -t $REGISTRY/$REPOSITORY:v$IMAGE_TAG .
+      #     docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
+      #     docker tag $REGISTRY/$REPOSITORY:v$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+      #     docker push $REGISTRY/$REPOSITORY:latest
           
-          echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
+      #     echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
+      # - name: Download task definition
+      #   run: |
+      #     aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ./task-definition.json
-          container-name: hotel-app 
-          image: ${{ steps.build-image.outputs.image }}
+      # - name: Fill in the new image ID in the Amazon ECS task definition
+      #   id: task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ./task-definition.json
+      #     container-name: hotel-app 
+      #     image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: hotel-alb
-          cluster: main-cluster
-          wait-for-service-stability: true
+      # - name: Deploy Amazon ECS task definition
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: hotel-alb
+      #     cluster: main-cluster
+      #     wait-for-service-stability: true
 
       - name: Get RDS instance hostname
         id: get-rds-hostname

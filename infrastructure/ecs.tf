@@ -61,6 +61,8 @@ module "ecs_service" {
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
+      cpu       = 512
+      memory    = 1024
       image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:latest"
       port_mappings = [
         {
@@ -237,7 +239,7 @@ module "autoscaling" {
   for_each = {
     # On-demand instances
     group_1 = {
-      instance_type              = "t3.large"
+      instance_type              = "t3.medium"
       use_mixed_instances_policy = false
       mixed_instances_policy     = {}
       user_data                  = <<-EOT
@@ -273,7 +275,7 @@ module "autoscaling" {
   vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = "EC2"
   min_size            = 1
-  max_size            = 1
+  max_size            = 2 
   desired_capacity    = 1
 
   # https://github.com/hashicorp/terraform-provider-aws/issues/12582

@@ -45,6 +45,16 @@ module "iam_policy" {
             "*"
          ]
     },
+  {
+         "Sid":"RDSDescribeDBInstances",
+         "Effect":"Allow",
+         "Action":[
+            "rds:DescribeDBInstances"
+         ],
+         "Resource":[
+            "*"
+         ]
+    },
     {
          "Sid":"DeployService",
          "Effect":"Allow",
