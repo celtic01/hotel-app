@@ -3,8 +3,8 @@ name: build & deploy
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - '!/infrastructure/**'
+    paths-ignore:
+      - 'infrastructure/**'
 jobs:
   Build-and-Deploy:
     runs-on: ubuntu-latest

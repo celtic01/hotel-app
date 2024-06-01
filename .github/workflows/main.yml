@@ -3,8 +3,8 @@ name: build & deploy
 on:
   push:
     branches: [ main ]
-    paths:
-      - '!/infrastructure/**'
+    paths-ignore:
+      - 'infrastructure/**'
 env:
   
   AWS_REGION : us-west-2 #Change to reflect your Region
