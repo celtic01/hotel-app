@@ -55,7 +55,42 @@ module "iam_policy" {
          "Resource":[
             "*"
          ]
-    }
+    },
+    {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:StartSession"
+            ],
+            "Resource": [
+                "arn:aws:ec2:${local.region}:account-id:instance/*",
+                "arn:aws:ssm:${local.region}:account-id:document/AWS-StartPortForwardingSessionToRemoteHost"
+            ],
+            "Condition": {
+                "BoolIfExists": {
+                    "ssm:SessionDocumentAccessCheck": "true"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeSessions",
+                "ssm:GetConnectionStatus",
+                "ssm:DescribeInstanceProperties",
+                "ec2:DescribeInstances"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:TerminateSession",
+                "ssm:ResumeSession"
+            ],
+            "Resource": [
+                "arn:aws:ssm:*:*:session/$${aws:userid}-*"
+            ]
+        }
   ]
 }
 EOF
