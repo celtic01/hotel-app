@@ -3,6 +3,7 @@ name: build & deploy
 on:
   pull_request:
     branches: [ main ]
+    paths:
       - '!/infrastructure/**'
 jobs:
   Build-and-Deploy:
