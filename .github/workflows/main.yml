@@ -119,4 +119,9 @@ jobs:
           echo "::add-mask::$PASSWORD"
           echo "DB_USER=$USERNAME" >> $GITHUB_ENV
           echo "DB_PASS=$PASSWORD" >> $GITHUB_ENV
-      
+     
+      - name: Run migrations
+        run: |
+          soda migrate up -e default
+        env:
+          DB_HOST: ${{ steps.get-rds-hostname.outputs.rds_hostname}}
