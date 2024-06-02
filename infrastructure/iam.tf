@@ -23,6 +23,21 @@ module "iam_policy" {
     },
     {
             "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetResourcePolicy",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:ListSecretVersionIds"
+            ],
+            "Resource": "arn:aws:secretsmanager:${local.region}:${data.aws_caller_identity.current.account_id}:secret:rds!*"
+    },
+    {
+            "Effect": "Allow",
+            "Action": "secretsmanager:ListSecrets",
+            "Resource": "*"
+    },
+    {
+            "Effect": "Allow",
             "Action": "ecr:GetAuthorizationToken",
             "Resource": "*"
     },

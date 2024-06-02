@@ -99,4 +99,30 @@ jobs:
           go install github.com/gobuffalo/pop/v6/soda@latest
           soda --version
 
-          
+ - name: Get secret ID containing 'rds!'
+        id: get-secret-id
+        run: |
+          PARTIAL_NAME="rds!"
+          SECRET_ID=$(aws secretsmanager list-secrets --query 'SecretList[?contains(Name, `'"$PARTIAL_NAME"'`)].Name' --output text)
+          if [ -z "$SECRET_ID" ]; then
+            echo "No secret found matching the pattern '$PARTIAL_NAME'"
+            exit 1
+          fi
+          echo "SECRET_ID=$SECRET_ID" >> $GITHUB_ENV
+
+      - name: Retrieve secret value
+        id: retrieve-secret
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id "$SECRET_ID" --query 'SecretString' --output text)
+          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
+          USERNAME=$(echo $SECRET_VALUE | jq -r '.username')
+          PASSWORD=$(echo $SECRET_VALUE | jq -r '.password')
+          echo "::add-mask::$USERNAME"
+          echo "::add-mask::$PASSWORD"
+          echo "DB_USER=$USERNAME" >> $GITHUB_ENV
+          echo "DB_PASS=$PASSWORD" >> $GITHUB_ENV
+      
+      - name: Print secrets (for debugging purposes, remove this in production)
+        run: |
+          echo "DB_USER: ${{ env.DB_USER }}"
+          echo "DB_PASS: ${{ env.DB_PASS }}
