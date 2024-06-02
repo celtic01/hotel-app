@@ -48,6 +48,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build
     steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
@@ -117,7 +120,7 @@ jobs:
           soda migrate -e production
         env:
           DB_URL: postgres://${{ env.DB_USER }}:${{ env.DB_PASS }}@127.0.0.1:5555/hotelreservationproduction?
-          
+
   Deploy:
     runs-on: ubuntu-latest
     needs: [Build,Migrations]
