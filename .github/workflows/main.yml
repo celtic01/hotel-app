@@ -122,6 +122,7 @@ jobs:
      
       - name: Run migrations
         run: |
+          echo $DB_URL
           soda migrate up -e production
         env:
           DB_URL: postgres://${{ env.DB_USER }}:${{ env.DB_PASS }}@${{ steps.get-rds-hostname.outputs.rds_hostname}}:5555/hotelreservationproduction?
