@@ -8,10 +8,8 @@ module "ecs_cluster" {
 
   cluster_name = "main-cluster" 
 
-  # Capacity provider - autoscaling groups
   default_capacity_provider_use_fargate = false
   autoscaling_capacity_providers = {
-    # On-demand instances
     group_1 = {
       auto_scaling_group_arn         = module.autoscaling["group_1"].autoscaling_group_arn
       managed_termination_protection = "DISABLED"
@@ -39,14 +37,12 @@ module "ecs_cluster" {
 module "ecs_service" {
   source = "terraform-aws-modules/ecs/aws//modules/service"
 
-  # Service
   name        = local.name
   cluster_arn = module.ecs_cluster.arn
   force_delete = true
-  # Task Definition
   requires_compatibilities = ["EC2"]
+
   capacity_provider_strategy = {
-    # On-demand instances
     group_1 = {
       capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["group_1"].name
       weight            = 2 
@@ -58,7 +54,6 @@ module "ecs_service" {
     my-vol = {}
   }
 
-  # Container definition(s)
   container_definitions = {
     (local.container_name) = {
       cpu       = 512
@@ -92,7 +87,6 @@ module "ecs_service" {
         }
       ]
 
-      # Example image used requires access to write to root filesystem
       readonly_root_filesystem = false
 
       enable_cloudwatch_logging              = true
@@ -137,11 +131,6 @@ module "ecs_service" {
   tags = local.tags
 }
 
-################################################################################
-# Supporting Resources
-################################################################################
-
-# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
 data "aws_ssm_parameter" "ecs_optimized_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
 }
@@ -262,7 +251,7 @@ module "autoscaling" {
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
   user_data                       = base64encode(each.value.user_data)
-  ignore_desired_capacity_changes = true
+  ignore_desired_capacity_changes = false 
 
   create_iam_instance_profile = true
   iam_role_name               = "ecs-instance-role-${each.key}"
