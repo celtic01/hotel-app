@@ -15,7 +15,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      image-id: ${{ steps.build-image.outputs.image }}
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
@@ -107,7 +107,6 @@ jobs:
         id: retrieve-secret
         run: |
           SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id "$SECRET_ID" --query 'SecretString' --output text)
-          echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
           USERNAME=$(echo $SECRET_VALUE | jq -r '.username')
           PASSWORD=$(echo $SECRET_VALUE | jq -r '.password' | jq -Rr '@uri')
           echo "::add-mask::$USERNAME"
@@ -142,7 +141,7 @@ jobs:
         with:
           task-definition: ./task-definition.json
           container-name: hotel-app 
-          image: ${{ needs.Build.outputs.image }}
+          image: ${{ needs.Build.outputs.image-id }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
