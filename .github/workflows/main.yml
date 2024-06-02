@@ -12,8 +12,10 @@ permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 jobs:
-  Build-and-Deploy:
+  Build:
     runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.build-image.outputs.image }}
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
@@ -25,43 +27,33 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # - name: Build, tag, and push docker image to Amazon ECR
-      #   id: build-image
-      #   env:
-      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     REPOSITORY: hotel-app
-      #     IMAGE_TAG: ${{ github.sha }}
-      #   run: |
-      #     docker build -t $REGISTRY/$REPOSITORY:v$IMAGE_TAG .
-      #     docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
-      #     docker tag $REGISTRY/$REPOSITORY:v$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
-      #     docker push $REGISTRY/$REPOSITORY:latest
-          
-      #     echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
+      - name: Build, tag, and push docker image to Amazon ECR
+        id: build-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: hotel-app
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:v$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
+          docker tag $REGISTRY/$REPOSITORY:v$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+          docker push $REGISTRY/$REPOSITORY:latest
+          echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      # - name: Download task definition
-      #   run: |
-      #     aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
-
-      # - name: Fill in the new image ID in the Amazon ECS task definition
-      #   id: task-def
-      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #   with:
-      #     task-definition: ./task-definition.json
-      #     container-name: hotel-app 
-      #     image: ${{ steps.build-image.outputs.image }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-      #     service: hotel-alb
-      #     cluster: main-cluster
-      #     wait-for-service-stability: true
+  Migrations:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Get RDS instance hostname
         id: get-rds-hostname
@@ -117,12 +109,42 @@ jobs:
           PASSWORD=$(echo $SECRET_VALUE | jq -r '.password' | jq -Rr '@uri')
           echo "$USERNAME"
           echo "$PASSWORD"
-          echo "DB_USER=$USERNAME" >> $GITHUB_ENV
-          echo "DB_PASS=$PASSWORD" >> $GITHUB_ENV
+          echo "::add-mask::DB_USER=$USERNAME" >> $GITHUB_ENV
+          echo "::add-mask::DB_PASS=$PASSWORD" >> $GITHUB_ENV
      
       - name: Run migrations
         run: |
           soda migrate -e production
-          echo $DB_URL
         env:
           DB_URL: postgres://${{ env.DB_USER }}:${{ env.DB_PASS }}@127.0.0.1:5555/hotelreservationproduction?
+          
+  Deploy:
+    runs-on: ubuntu-latest
+    needs: [Build,Migrations]
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role 
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ./task-definition.json
+          container-name: hotel-app 
+          image: ${{ needs.Build.outputs.image_name }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: hotel-alb
+          cluster: main-cluster
+          wait-for-service-stability: true
