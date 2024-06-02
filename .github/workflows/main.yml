@@ -124,4 +124,4 @@ jobs:
         run: |
           soda migrate up -e production
         env:
-          DB_URL: postgres://${{ steps.get-rds-hostname.outputs.rds_hostname}}:${{ env.DB_USER }}:${{ env.DB_PASS }}@5555/hotelreservationproduction
+          DB_URL: postgres://${{ env.DB_USER }}:${{ env.DB_PASS }}@${{ steps.get-rds-hostname.outputs.rds_hostname}}:5555/hotelreservationproduction?
