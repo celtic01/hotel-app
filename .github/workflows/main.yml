@@ -99,7 +99,7 @@ jobs:
           go install github.com/gobuffalo/pop/v6/soda@latest
           soda --version
 
- - name: Get secret ID containing 'rds!'
+      - name: Get secret ID containing 'rds!'
         id: get-secret-id
         run: |
           PARTIAL_NAME="rds!"
