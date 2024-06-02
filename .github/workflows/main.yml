@@ -122,6 +122,6 @@ jobs:
      
       - name: Run migrations
         run: |
-          soda migrate up -e default
+          soda migrate up -e production
         env:
-          DB_HOST: ${{ steps.get-rds-hostname.outputs.rds_hostname}}
+          DB_URL: postgres://${{ steps.get-rds-hostname.outputs.rds_hostname}}:${{ env.DB_USER }}:${{ env.DB_PASS }}@5555/hotelreservationproduction
