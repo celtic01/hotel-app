@@ -110,10 +110,10 @@ jobs:
           echo "SECRET_VALUE=$SECRET_VALUE" >> $GITHUB_ENV
           USERNAME=$(echo $SECRET_VALUE | jq -r '.username')
           PASSWORD=$(echo $SECRET_VALUE | jq -r '.password' | jq -Rr '@uri')
-          echo "$USERNAME"
-          echo "$PASSWORD"
-          echo "::add-mask::DB_USER=$USERNAME" >> $GITHUB_ENV
-          echo "::add-mask::DB_PASS=$PASSWORD" >> $GITHUB_ENV
+          echo "::add-mask::$USERNAME"
+          echo "::add-mask::$PASSWORD"
+          echo "DB_USER=$USERNAME" >> $GITHUB_ENV
+          echo "DB_PASS=$PASSWORD" >> $GITHUB_ENV
      
       - name: Run migrations
         run: |
