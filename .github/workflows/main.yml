@@ -42,7 +42,7 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:v$IMAGE_TAG
           docker tag $REGISTRY/$REPOSITORY:v$IMAGE_TAG $REGISTRY/$REPOSITORY:latest
           docker push $REGISTRY/$REPOSITORY:latest
-          echo "image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "::add-mask::image=$REGISTRY/$REPOSITORY:v$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   Migrations:
     runs-on: ubuntu-latest
