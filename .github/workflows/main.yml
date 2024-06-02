@@ -15,7 +15,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     outputs:
-      image_name: ${{ steps.build-image.outputs.image }}
+      image: ${{ steps.build-image.outputs.image }}
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
@@ -135,6 +135,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition hotel-alb --query taskDefinition > task-definition.json
+          echo ${{ needs.Build.outputs.image_name }} 
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
