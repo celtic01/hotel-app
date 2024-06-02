@@ -122,5 +122,5 @@ jobs:
       
       - name: Print secrets (for debugging purposes, remove this in production)
         run: |
-          echo "DB_USER: ${{ env.DB_USER }}"
-          echo "DB_PASS: ${{ env.DB_PASS }}
+          echo $DB_USER 
+          echo $DB_PASS
