@@ -146,10 +146,8 @@ module "alb" {
   vpc_id  = module.vpc.vpc_id
   subnets = module.vpc.public_subnets
 
-  # For example only
   enable_deletion_protection = false
 
-  # Security Group
   security_group_ingress_rules = {
     all_http = {
       from_port   = 80
@@ -212,8 +210,6 @@ module "alb" {
         unhealthy_threshold = 2
       }
 
-      # Theres nothing to attach here in this definition. Instead,
-      # ECS will attach the IPs of the tasks to this target group
       create_attachment = false
     }
   }
@@ -226,7 +222,6 @@ module "autoscaling" {
   version = "~> 6.5"
 
   for_each = {
-    # On-demand instances
     group_1 = {
       instance_type              = "t3.medium"
       use_mixed_instances_policy = false
@@ -264,15 +259,13 @@ module "autoscaling" {
   vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = "EC2"
   min_size            = 1
-  max_size            = 2 
+  max_size            = 1 
   desired_capacity    = 1
 
-  # https://github.com/hashicorp/terraform-provider-aws/issues/12582
   autoscaling_group_tags = {
     AmazonECSManaged = true
   }
 
-  # Required for  managed_termination_protection = "ENABLED"
   protect_from_scale_in = false 
 
   tags = local.tags
