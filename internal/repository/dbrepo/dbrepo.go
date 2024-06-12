@@ -23,9 +23,3 @@ func NewPostgresRepo(a *config.AppConfig, db *sql.DB) repository.DatabaseRepo {
 		DB:  db,
 	}
 }
-
-func NewTestingsRepo(a *config.AppConfig) repository.DatabaseRepo {
-	return &testDBRepo{
-		App: a,
-	}
-}
