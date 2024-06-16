@@ -1,11 +1,11 @@
 development:
   dialect: postgres
-  database: database
-  user: user
-  password: pass
-  host: host
+  database: hotel-reservation_development
+  user: hotel_user
+  password: hotel_pass
+  host: localhost 
   pool: 5
-  port: port
+  port: 5432
 
 production:
   url: {{envOr "DB_URL" "postgres://user:pass@host:port/database?"}}

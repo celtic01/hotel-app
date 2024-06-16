@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -250,81 +249,17 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 
 	data := make(map[string]interface{})
 	data["rooms"] = rooms
-
 	res := models.Reservation{
 		StartDate: startDate,
 		EndDate:   endDate,
 	}
+	data["reservation"] = res
 
 	m.App.Session.Put(r.Context(), "reservation", res)
 
 	render.Template(w, r, "choose-room.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
-}
-
-type jsonResponse struct {
-	OK        bool   `json:"ok"`
-	Message   string `json:"message"`
-	RoomID    string `json:"room_id"`
-	StartDate string `json:"start_date"`
-	EndDate   string `json:"end_date"`
-}
-
-// AvailabilityJSON handles request for availability and send JSON response
-func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
-	// need to parse request body
-	err := r.ParseForm()
-	if err != nil {
-		// can't parse form, so return appropriate json
-		resp := jsonResponse{
-			OK:      false,
-			Message: "Internal server error",
-		}
-
-		out, _ := json.MarshalIndent(resp, "", "     ")
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(out)
-		return
-	}
-
-	sd := r.Form.Get("start")
-	ed := r.Form.Get("end")
-
-	layout := "2006-01-02"
-	startDate, _ := time.Parse(layout, sd)
-	endDate, _ := time.Parse(layout, ed)
-
-	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
-
-	available, err := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
-	if err != nil {
-		// got a database error, so return appropriate json
-		resp := jsonResponse{
-			OK:      false,
-			Message: "Error querying database",
-		}
-
-		out, _ := json.MarshalIndent(resp, "", "     ")
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(out)
-		return
-	}
-	resp := jsonResponse{
-		OK:        available,
-		Message:   "",
-		StartDate: sd,
-		EndDate:   ed,
-		RoomID:    strconv.Itoa(roomID),
-	}
-
-	// I removed the error check, since we handle all aspects of
-	// the json right here
-	out, _ := json.MarshalIndent(resp, "", "     ")
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(out)
-
 }
 
 // Contact renders the search availability page

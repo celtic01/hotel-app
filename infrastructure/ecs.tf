@@ -102,7 +102,7 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
+      target_group_arn = module.alb.target_groups["ecs_hotel"].arn
       container_name   = local.container_name
       container_port   = local.container_port
     }
@@ -186,12 +186,12 @@ module "alb" {
       certificate_arn = module.acm.acm_certificate_arn
 
       forward = {
-        target_group_key = "ex_ecs"
+        target_group_key = "ecs_hotel"
       }
   }
   }
   target_groups = {
-    ex_ecs = {
+    ecs_hotel = {
       backend_protocol                  = "HTTP"
       backend_port                      = local.container_port
       target_type                       = "ip"
@@ -334,7 +334,7 @@ data "cloudflare_zone" "this" {
   name = local.domain_name
 }
 
-resource "cloudflare_record" "example" {
+resource "cloudflare_record" "hotel-bortas" {
   zone_id = data.cloudflare_zone.this.id
   name    = "hotel-app.${local.domain_name}"
   value   = "${module.alb.dns_name}"

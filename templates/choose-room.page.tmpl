@@ -1,16 +1,36 @@
 {{template "base" .}}
 
 {{define "content"}}
-    <div class="container">
+    <div class="container mt-4">
         <div class="row">
             <div class="col">
-                <h1>Choose a Room</h1>
+                <h1 class="text-center">Choose a Room</h1>
+                <hr class="mb-4">
                 {{ $rooms := index .Data "rooms" }}
-                <ul>
+                {{ $reservation := index .Data "reservation" }}
+                <div class="list-group">
                     {{range $rooms}}
-                        <li><a href="/choose-room/{{.ID}}">{{.RoomName}}</a></li>
+                        <a href="/choose-room/{{.ID}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span class="room-name">{{.RoomName}}</span>
+                            <span class="badge bg-primary rounded-pill">Available</span>
+                        </a>
                     {{end}}
-                </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col">
+                <h2 class="text-center">Reservation Dates</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Reservation Details</h5>
+                        <p class="card-text">
+                            <strong>Start Date:</strong> {{ $reservation.StartDate.Format "2006-01-02" }}<br>
+                            <strong>End Date:</strong> {{ $reservation.EndDate.Format "2006-01-02" }}
+                        </p>
+                        <a href="/search-availability" class="btn btn-primary">Edit Reservation</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
