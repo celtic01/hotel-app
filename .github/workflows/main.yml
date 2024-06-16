@@ -77,7 +77,7 @@ jobs:
 
       - name: Start ssm session
         run: |
-          nohup aws ssm start-session --target $instance_id --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["$rds_hostname"],"portNumber":["5432"],"localPortNumber":["5555"]}' &
+          nohup aws ssm start-session --target ${{ env.instance_id }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["${{ env.rds_hostname }}"],"portNumber":["5432"],"localPortNumber":["5555"]}' &
 
       - name: Set up Golang
         uses: actions/setup-go@v5
