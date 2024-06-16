@@ -6,28 +6,28 @@ on:
     paths-ignore:
       - 'infrastructure/**'
 env:
-  AWS_REGION : us-west-2 #Change to reflect your Region
+  AWS_REGION : us-west-2 
 
 permissions:
-      id-token: write   # This is required for requesting the JWT
-      contents: read    # This is required for actions/checkout
+      id-token: write   
+      contents: read    
 jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@master
         with:
-          role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role #change to reflect your IAM role’s ARN
+          role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role 
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@master
 
       - name: Build, tag, and push docker image to Amazon ECR
         id: build-image
@@ -46,10 +46,10 @@ jobs:
     needs: Build
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@master
         with:
           role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
@@ -63,7 +63,7 @@ jobs:
               --query "DBInstances[0].Endpoint.Address" \
               --output text)
           echo "RDS_HOSTNAME=$RDS_HOSTNAME"
-          echo "rds_hostname=$RDS_HOSTNAME" >> $GITHUB_OUTPUT
+          echo "rds_hostname=$RDS_HOSTNAME" >> $GITHUB_ENV
  
       - name: Get EC2 instance ID
         id: get-instance-id
@@ -73,11 +73,11 @@ jobs:
           --query "Reservations[*].Instances[*].InstanceId" \
           --output text)
           echo "INSTANCE_ID=$INSTANCE_ID"
-          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_ENV
 
       - name: Start ssm session
         run: |
-          nohup aws ssm start-session --target ${{ steps.get-instance-id.outputs.instance_id }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["${{ steps.get-rds-hostname.outputs.rds_hostname}}"],"portNumber":["5432"],"localPortNumber":["5555"]}' &
+          nohup aws ssm start-session --target $instance_id --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["$rds_hostname"],"portNumber":["5432"],"localPortNumber":["5555"]}' &
 
       - name: Set up Golang
         uses: actions/setup-go@v5
@@ -122,7 +122,7 @@ jobs:
     needs: Migrations
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+        uses: aws-actions/configure-aws-credentials@master
         with:
           role-to-assume: arn:aws:iam::151389984452:role/github-oidc-role 
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
@@ -134,14 +134,14 @@ jobs:
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        uses: aws-actions/amazon-ecs-render-task-definition@master
         with:
           task-definition: ./task-definition.json
           container-name: hotel-app 
           image: ${{ vars.REGISTRY }}/hotel-app:v${{ github.sha }}
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@master
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: hotel-alb
