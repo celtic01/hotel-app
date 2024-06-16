@@ -108,8 +108,8 @@ jobs:
           PASSWORD=$(echo $SECRET_VALUE | jq -r '.password' | jq -Rr '@uri')
           echo "::add-mask::$USERNAME"
           echo "::add-mask::$PASSWORD"
-          echo "DB_USER=$USERNAME" >> $GITHUB_ENV
           echo "DB_PASS=$PASSWORD" >> $GITHUB_ENV
+          echo "DB_USER=$USERNAME" >> $GITHUB_ENV
      
       - name: Run migrations
         run: |
