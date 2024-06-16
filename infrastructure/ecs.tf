@@ -57,7 +57,7 @@ module "ecs_service" {
   container_definitions = {
     (local.container_name) = {
       cpu       = 512
-      memory    = 1024
+      memory    = 256
       image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:latest"
       port_mappings = [
         {
@@ -259,7 +259,7 @@ module "autoscaling" {
   vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = "EC2"
   min_size            = 1
-  max_size            = 1 
+  max_size            = 2 
   desired_capacity    = 1
 
   autoscaling_group_tags = {

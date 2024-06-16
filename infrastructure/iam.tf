@@ -87,7 +87,7 @@ module "iam_policy" {
                 "ssm:StartSession"
             ],
             "Resource": [
-                "arn:aws:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:instance/*",
+                "arn:aws:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:instance/${module.ec2.id}",
                 "arn:aws:ssm:${local.region}::document/AWS-StartPortForwardingSessionToRemoteHost"
             ],
             "Condition": {
