@@ -8,7 +8,8 @@ locals {
   region = "us-west-2"
   container_name = "hotel-app"
   container_port = 8080 
-  name= "hotel-alb"
+  name= "hotel-app"
+  private_subnet_cidrs = flatten([for cidr in module.vpc.private_subnets : [cidr]])
   domain_name="bortas.ro"
 }
 

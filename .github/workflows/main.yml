@@ -144,6 +144,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@master
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: hotel-alb
+          service: hotel-app
           cluster: main-cluster
           wait-for-service-stability: true

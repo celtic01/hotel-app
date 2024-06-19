@@ -18,7 +18,7 @@ module "ecs_cluster" {
         maximum_scaling_step_size = 1 
         minimum_scaling_step_size = 1
         status                    = "ENABLED"
-        target_capacity           = 60
+        target_capacity           = 90
       }
 
       default_capacity_provider_strategy = {
@@ -50,9 +50,6 @@ module "ecs_service" {
     }
   }
 
-  volume = {
-    my-vol = {}
-  }
 
   container_definitions = {
     (local.container_name) = {
@@ -278,14 +275,6 @@ module "autoscaling_sg" {
   name        = "asg-sg"
   description = "Autoscaling group security group"
   vpc_id      = module.vpc.vpc_id
-
-  computed_ingress_with_source_security_group_id = [
-    {
-      rule                     = "http-80-tcp"
-      source_security_group_id = module.alb.security_group_id
-    }
-  ]
-  number_of_computed_ingress_with_source_security_group_id = 1
 
   egress_rules = ["all-all"]
 
