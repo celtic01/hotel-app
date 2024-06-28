@@ -3,7 +3,6 @@
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -59,7 +58,7 @@
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li><a class="dropdown-item" href="/carpathian">Carpathian Comfort</a></li>
-                  <li><a class="dropdown-item" href="/crisana">Crisana Chamber</a></li>
+                  <li><a class="dropdown-item" href="/crisana">Crișana Chamber</a></li>
                 </ul>
               </li>
               <li class="nav-item">
@@ -126,9 +125,7 @@
         (function () {
             'use strict';
             window.addEventListener('load', function () {
-                // Fetch all the forms we want to apply custom Bootstrap validation styles to
                 let forms = document.getElementsByClassName('needs-validation');
-                // Loop over them and prevent submission
                 Array.prototype.filter.call(forms, function (form) {
                     form.addEventListener('submit', function (event) {
                         if (form.checkValidity() === false) {
