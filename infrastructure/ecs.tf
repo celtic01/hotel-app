@@ -49,12 +49,13 @@ module "ecs_service" {
       base              = 1
     }
   }
-
+ cpu = 256
+ memory = 512
 
   container_definitions = {
     (local.container_name) = {
-      cpu       = 512
-      memory    = 256
+      cpu       = 256
+      memory    = 512
       image = "151389984452.dkr.ecr.us-west-2.amazonaws.com/hotel-app:latest"
       port_mappings = [
         {
@@ -284,11 +285,6 @@ module "autoscaling_sg" {
 module "acm" {
  source  = "terraform-aws-modules/acm/aws"
   version = "5.0.1"
-
-  providers = {
-    aws.acm = aws,
-    aws.dns = aws
-  }
 
   domain_name = local.domain_name
   zone_id     = data.cloudflare_zone.this.id
