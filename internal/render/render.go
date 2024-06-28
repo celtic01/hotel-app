@@ -96,7 +96,6 @@ func Template(w http.ResponseWriter, r *http.Request, tmpl string, td *models.Te
 }
 
 func CreateTemplateCache() (map[string]*template.Template, error) {
-	// myCache := make(map[string]*template.Template)
 	myCache := map[string]*template.Template{}
 
 	// get all of the files named *.page.tmpl from ./templates

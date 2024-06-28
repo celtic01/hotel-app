@@ -10,6 +10,10 @@ locals {
   container_port = 8080 
   name= "hotel-app"
   private_subnet_cidrs = flatten([for cidr in module.vpc.private_subnets : [cidr]])
+  database_subnet_ids = toset(module.vpc.database_subnets)
+  db_subnets_map = {
+    for idx, subnet_id in module.vpc.database_subnets : idx => subnet_id
+  }
   domain_name="bortas.ro"
 }
 

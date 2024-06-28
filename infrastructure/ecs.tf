@@ -18,12 +18,12 @@ module "ecs_cluster" {
         maximum_scaling_step_size = 1 
         minimum_scaling_step_size = 1
         status                    = "ENABLED"
-        target_capacity           = 90
+        target_capacity           = 100
       }
 
       default_capacity_provider_strategy = {
-        weight = 60
-        base   = 10
+        weight = 1
+        base   = 1
       }
     }
   }
@@ -45,7 +45,7 @@ module "ecs_service" {
   capacity_provider_strategy = {
     group_1 = {
       capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["group_1"].name
-      weight            = 2 
+      weight            = 1 
       base              = 1
     }
   }
@@ -88,7 +88,7 @@ module "ecs_service" {
 
       enable_cloudwatch_logging              = true
       create_cloudwatch_log_group            = true
-      cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
+      cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}-svc"
       cloudwatch_log_group_retention_in_days = 7
 
       log_configuration = {

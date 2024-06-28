@@ -23,6 +23,11 @@ module "iam_policy" {
     },
     {
             "Effect": "Allow",
+            "Action": "ecr:GetAuthorizationToken",
+            "Resource": "*"
+    },
+    {
+            "Effect": "Allow",
             "Action": [
                 "secretsmanager:GetResourcePolicy",
                 "secretsmanager:GetSecretValue",
@@ -36,11 +41,7 @@ module "iam_policy" {
             "Action": "secretsmanager:ListSecrets",
             "Resource": "*"
     },
-    {
-            "Effect": "Allow",
-            "Action": "ecr:GetAuthorizationToken",
-            "Resource": "*"
-    },
+
     {
          "Sid":"RegisterTaskDefinition",
          "Effect":"Allow",

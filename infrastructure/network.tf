@@ -22,3 +22,50 @@ module "vpc" {
   single_nat_gateway = true
 
 }
+
+resource "aws_network_acl" "db_nacl" {
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    rule_no    = 100
+    protocol   = "tcp"
+    action = "allow"
+    cidr_block = module.vpc.private_subnets_cidr_blocks[0]
+    from_port  = 0
+    to_port    = 65535
+  }
+
+  ingress {
+    rule_no    = 110
+    protocol   = "tcp"
+    action = "allow"
+    cidr_block = module.vpc.private_subnets_cidr_blocks[1]
+    from_port  = 0
+    to_port    = 65535
+  }
+
+  ingress {
+    rule_no    = 120
+    protocol   = "-1"
+    action = "deny"
+    from_port  = 0
+    to_port    = 0
+    cidr_block = "0.0.0.0/0"
+  }
+  
+    egress {
+    rule_no    = 100
+    protocol   = "-1"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0" 
+    from_port  = 0
+    to_port    = 0
+  }
+}
+
+resource "aws_network_acl_association" "db_subnets" {
+  for_each = local.db_subnets_map
+
+  subnet_id       = each.value
+  network_acl_id  = aws_network_acl.db_nacl.id
+}
